@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getLinks, incrementClickCount, isLinkExpired } from "@/lib/links";
 
 export default function RedirectPage() {
   const params = useParams();
-  const router = useRouter();
   const code = typeof params.code === "string" ? params.code : "";
   const [status, setStatus] = useState(() => (code ? "Redirecting..." : "Short URL not found"));
 
@@ -16,21 +15,44 @@ export default function RedirectPage() {
       return;
     }
 
-    const match = getLinks().find((link) => link.shortCode === code);
+    let isCancelled = false;
 
-    if (!match || isLinkExpired(match)) {
-      const timer = setTimeout(() => setStatus("Short URL not found"), 0);
-      return () => clearTimeout(timer);
-    }
+    const redirectFromLocalStorage = () => {
+      const match = getLinks().find((link) => link.shortCode === code);
 
-    const timer = setTimeout(() => {
+      if (!match || isLinkExpired(match)) {
+        setStatus("Short URL not found");
+        return;
+      }
+
       incrementClickCount(code);
       setStatus("Redirecting...");
-      router.replace(match.originalUrl);
-    }, 0);
+      window.location.replace(match.originalUrl);
+    };
 
-    return () => clearTimeout(timer);
-  }, [code, router]);
+    const resolveShortUrl = async () => {
+      try {
+        const response = await fetch(`/api/resolve/${code}`);
+        const data = await response.json();
+        if (!response.ok || !data?.originalUrl) {
+          if (!isCancelled) redirectFromLocalStorage();
+          return;
+        }
+
+        if (isCancelled) return;
+        setStatus("Redirecting...");
+        window.location.replace(data.originalUrl);
+      } catch {
+        if (!isCancelled) redirectFromLocalStorage();
+      }
+    };
+
+    resolveShortUrl();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [code]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">

@@ -35,6 +35,7 @@ export default function Home() {
         body: JSON.stringify({
           originalUrl,
           existingCodes: links.map((link) => link.shortCode),
+          expiresAt: getExpiresAt(expiry),
         }),
       });
 
@@ -51,7 +52,7 @@ export default function Home() {
           originalUrl: data.originalUrl,
           clicks: 0,
           createdAt: new Date().toISOString(),
-          expiresAt: getExpiresAt(expiry),
+          expiresAt: data.expiresAt,
           expiryType: expiry in EXPIRY_OPTIONS ? expiry : "never",
         },
         ...links,

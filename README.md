@@ -7,9 +7,10 @@ A full-stack URL shortener built with Next.js App Router and Tailwind CSS.
 - Create short links from long URLs on the home page
 - Random 6-character alphanumeric short code generation via Next.js API route
 - Expiry selection per link: `1 day`, `7 days`, or `never`
-- Local persistence in `localStorage` as:
+- Local dashboard persistence in `localStorage` as:
   - `{ shortCode, originalUrl, clicks, createdAt, expiresAt, expiryType }`
-- Dynamic `/[code]` redirect route with click-count increment and expiry checks
+- In-memory server resolution for shared short links while app is running
+- Dynamic `/[code]` redirect route with server-first resolve and local fallback
 - `/dashboard` table with search/filter, expired badges, copy + delete actions, and click stats
 - QR code per short URL in dashboard (`qrcode.react`)
 - Clicks bar chart (`recharts`)

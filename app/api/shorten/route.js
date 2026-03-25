@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
+import { hasServerLink, saveServerLink } from "@/lib/server-links";
 
 const ALPHANUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -33,6 +34,10 @@ export async function POST(request) {
   const body = await request.json().catch(() => ({}));
   const existingCodes = Array.isArray(body.existingCodes) ? body.existingCodes : [];
   const originalUrl = typeof body.originalUrl === "string" ? normalizeUrl(body.originalUrl) : null;
+  const expiresAt =
+    typeof body.expiresAt === "string" && !Number.isNaN(new Date(body.expiresAt).getTime())
+      ? body.expiresAt
+      : null;
 
   if (!originalUrl) {
     return NextResponse.json({ error: "Please provide a valid URL" }, { status: 400 });
@@ -41,9 +46,11 @@ export async function POST(request) {
   const used = new Set(existingCodes);
   let shortCode = generateCode();
 
-  while (used.has(shortCode)) {
+  while (used.has(shortCode) || hasServerLink(shortCode)) {
     shortCode = generateCode();
   }
 
-  return NextResponse.json({ shortCode, originalUrl });
+  saveServerLink({ shortCode, originalUrl, expiresAt });
+
+  return NextResponse.json({ shortCode, originalUrl, expiresAt });
 }
