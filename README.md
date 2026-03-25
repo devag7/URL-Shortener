@@ -1,6 +1,6 @@
 # URL-Shortener
 
-A full-stack URL shortener built with Next.js 14 App Router and Tailwind CSS.
+A full-stack URL shortener built with Next.js App Router and Tailwind CSS.
 
 ## Features
 

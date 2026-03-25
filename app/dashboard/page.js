@@ -23,7 +23,11 @@ export default function DashboardPage() {
   const baseUrl = useBaseUrl();
 
   useEffect(() => {
-    setLinks(getLinks());
+    const timer = setTimeout(() => {
+      setLinks(getLinks());
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
