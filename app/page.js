@@ -52,7 +52,7 @@ export default function Home() {
           originalUrl: data.originalUrl,
           clicks: 0,
           createdAt: new Date().toISOString(),
-          expiresAt: data.expiresAt ?? getExpiresAt(expiry),
+          expiresAt: data.expiresAt,
           expiryType: expiry in EXPIRY_OPTIONS ? expiry : "never",
         },
         ...links,
