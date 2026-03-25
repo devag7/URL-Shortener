@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getLinks, incrementClickCount } from "@/lib/links";
+import { getLinks, incrementClickCount, isLinkExpired } from "@/lib/links";
 
 export default function RedirectPage() {
   const params = useParams();
@@ -18,7 +18,7 @@ export default function RedirectPage() {
 
     const match = getLinks().find((link) => link.shortCode === code);
 
-    if (!match) {
+    if (!match || isLinkExpired(match)) {
       const timer = setTimeout(() => setStatus("Short URL not found"), 0);
       return () => clearTimeout(timer);
     }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { getLinks, saveLinks } from "@/lib/links";
+import { EXPIRY_OPTIONS, getExpiresAt, getLinks, saveLinks } from "@/lib/links";
 
 function buildShortUrl(code) {
   if (typeof window === "undefined") return `/${code}`;
@@ -14,6 +14,7 @@ export default function Home() {
   const [shortCode, setShortCode] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [expiry, setExpiry] = useState("never");
 
   const shortUrl = useMemo(() => (shortCode ? buildShortUrl(shortCode) : ""), [shortCode]);
 
@@ -50,6 +51,8 @@ export default function Home() {
           originalUrl: data.originalUrl,
           clicks: 0,
           createdAt: new Date().toISOString(),
+          expiresAt: getExpiresAt(expiry),
+          expiryType: expiry in EXPIRY_OPTIONS ? expiry : "never",
         },
         ...links,
       ];
@@ -87,6 +90,21 @@ export default function Home() {
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none ring-sky-200 focus:ring"
             required
           />
+          <div>
+            <label htmlFor="expiry" className="mb-2 block text-sm font-medium">
+              Expiry
+            </label>
+            <select
+              id="expiry"
+              value={expiry}
+              onChange={(event) => setExpiry(event.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none ring-sky-200 focus:ring"
+            >
+              <option value="1d">1 day</option>
+              <option value="7d">7 days</option>
+              <option value="never">Never</option>
+            </select>
+          </div>
           <button
             type="submit"
             disabled={isLoading}
